@@ -5,12 +5,14 @@ import { TransactionService } from './transactions.service';
 import { TransactionController } from './transactions.controller';
 import { AuthModule } from '../auth/auth.module';
 import { PaymentsModule } from '../payments/payments.module';
+import { DisputesModule } from '../disputes/disputes.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Transaction]),
     AuthModule,
-    forwardRef(() => PaymentsModule), // <<< 2. แก้ไขบรรทัดนี้
+    forwardRef(() => PaymentsModule),
+    forwardRef(() => DisputesModule),
   ],
   controllers: [TransactionController],
   providers: [TransactionService],

@@ -2,7 +2,8 @@ import { DataSource, DataSourceOptions } from 'typeorm';
 import { config } from 'dotenv';
 import { User } from './user/entities/user.entity';
 import { Transaction } from './transactions/entities/transaction.entity';
-import { Payment } from './payments/entities/payment.entity'; // <<< 1. Import Payment
+import { Payment } from './payments/entities/payment.entity';
+import { Dispute } from './disputes/entities/dispute.entity'; // <<< 1. Import Dispute
 
 config({ path: ['.env'] });
 
@@ -13,7 +14,7 @@ export const dataSourceOptions: DataSourceOptions = {
   username: process.env.DATABASE_USERNAME!,
   password: process.env.DATABASE_PASSWORD!,
   database: process.env.DATABASE_NAME!,
-  entities: [User, Transaction, Payment], // <<< 2. เพิ่ม Payment เข้าไป
+  entities: [User, Transaction, Payment, Dispute], // <<< 2. เพิ่ม Dispute เข้าไป
   migrations: [__dirname + '/migrations/**/*{.ts,.js}'],
   synchronize: false,
   logging: true,

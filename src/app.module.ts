@@ -10,6 +10,7 @@ import { Transaction } from './transactions/entities/transaction.entity';
 import { PaymentsModule } from './payments/payments.module';
 import { Payment } from './payments/entities/payment.entity';
 import { DisputesModule } from './disputes/disputes.module';
+import { Dispute } from './disputes/entities/dispute.entity';
 
 @Module({
   imports: [
@@ -37,7 +38,7 @@ import { DisputesModule } from './disputes/disputes.module';
         username: configService.get<string>('DATABASE_USERNAME'),
         password: configService.get<string>('DATABASE_PASSWORD'),
         database: configService.get<string>('DATABASE_NAME'),
-        entities: [User, Transaction, Payment], // <<< แก้ไขแล้ว
+        entities: [User, Transaction, Payment, Dispute], // <<< แก้ไขแล้ว
         synchronize: false,
         logging: false,
       }),

@@ -1,19 +1,20 @@
-import { Controller, Post, Body, Get, Param, Put, UseGuards, Request } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, Put, UseGuards } from '@nestjs/common';
 import { TransactionService } from './transactions.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { ShipTransactionDto } from './dto/ship-transaction.dto';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard'; // Import Guard ของคุณ
-import { GetUser } from '../auth/get-user.decorator'; // Import Decorator ที่จะสร้าง
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { GetUser } from '../auth/get-user.decorator';
 import { User } from '../user/entities/user.entity';
+import { CreateDisputeDto } from '../disputes/dto/create-dispute.dto'; // <<< Import DTO
 
 @Controller('transactions')
-@UseGuards(JwtAuthGuard) // << ใช้ Guard ป้องกันทุก Route ใน Controller นี้ [cite: 588]
+@UseGuards(JwtAuthGuard)
 export class TransactionController {
   constructor(private readonly transactionService: TransactionService) {}
 
-  // ผู้ขายสร้างธุรกรรม
+  // ... (เมธอด create, findOne, ship, complete เหมือนเดิม) ...
   @Post()
-  create(@Body() createDto: CreateTransactionDto, @GetUser() user: User) { // [cite: 593] ดึงข้อมูล user จาก token
+  create(@Body() createDto: CreateTransactionDto, @GetUser() user: User) {
     return this.transactionService.create(createDto, user);
   }
 
@@ -22,21 +23,23 @@ export class TransactionController {
     return this.transactionService.findOne(id);
   }
 
-  // ผู้ขายอัปเดตเลขพัสดุ
   @Put(':id/ship')
   ship(@Param('id') id: string, @Body() shipDto: ShipTransactionDto, @GetUser() user: User) {
     return this.transactionService.ship(id, shipDto, user.id);
   }
 
-  // ผู้ซื้อกดยืนยันได้รับของ
   @Put(':id/complete')
   complete(@Param('id') id: string, @GetUser() user: User) {
     return this.transactionService.complete(id, user.id);
   }
 
-  // ผู้ซื้อ/ผู้ขายแจ้งปัญหา
+  // vvvvvvvv UPDATE THIS METHOD vvvvvvvv
   @Post(':id/dispute')
-  dispute(@Param('id') id: string, @GetUser() user: User) {
-    return this.transactionService.dispute(id, user.id);
+  dispute(
+    @Param('id') id: string,
+    @GetUser() user: User,
+    @Body() createDisputeDto: CreateDisputeDto, // <<< รับ Body เข้ามา
+  ) {
+    return this.transactionService.dispute(id, user, createDisputeDto);
   }
 }
