@@ -43,7 +43,9 @@ export class AuthController {
       maxAge: 3600 * 1000, // Cookie expiration in milliseconds (1 hour, matching JWT_EXPIRES_IN)
     });
 
-    return { message: 'เข้าสู่ระบบสำเร็จ' }; // Return a success message
+    return { 
+      message: 'เข้าสู่ระบบสำเร็จ',
+      access_token: access_token }; // Return a success message
   }
 
   /**
