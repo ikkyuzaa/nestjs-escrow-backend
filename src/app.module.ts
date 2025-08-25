@@ -9,6 +9,7 @@ import { TransactionModule } from './transactions/transactions.module';
 import { Transaction } from './transactions/entities/transaction.entity';
 import { PaymentsModule } from './payments/payments.module';
 import { Payment } from './payments/entities/payment.entity';
+import { DisputesModule } from './disputes/disputes.module';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { Payment } from './payments/entities/payment.entity';
     AuthModule,
     TransactionModule,
     PaymentsModule,
+    DisputesModule,
   ],
   controllers: [],
   providers: [],
