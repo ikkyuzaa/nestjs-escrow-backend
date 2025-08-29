@@ -39,7 +39,17 @@ This project implements a complete, end-to-end transaction lifecycle with a robu
 
 This project is built using a **Modular Monolith** architecture. Each core feature (Auth, Transactions, Payments, etc.) is encapsulated within its own dedicated NestJS module. This approach provides clear separation of concerns, enhances maintainability, and makes the system ready to be scaled into individual microservices in the future.
 
-![System Architecture Diagram](https://i.postimg.cc/qRw5yR95/system-architecture.png)
+![System Architecture Diagram](https://i.imgur.com/8QzJcI3.png)
+
+## 🛠️ Technology Stack
+
+* **Framework:** NestJS (with Fastify Adapter)
+* **Language:** TypeScript
+* **Database:** PostgreSQL
+* **ORM:** TypeORM
+* **Authentication:** Passport.js (JWT Strategy)
+* **Password Hashing:** Argon2
+* **Validation:** class-validator
 
 ## 🚀 Getting Started
 
@@ -108,6 +118,15 @@ $ npm run test:e2e
 
 # test coverage
 $ npm run test:cov
+
+## ✍️ Author
+
+**Rachat Lekklaew (ikkyuzaa)**
+
+This project was solely designed, architected, and developed by me. It represents a deep dive into building secure, scalable, and production-ready backend systems using modern technologies.
+
+* **GitHub:** [https://github.com/ikkyuzaa](https://github.com/ikkyuzaa)
+* **LinkedIn:** (ใส่ลิงก์โปรไฟล์ LinkedIn ของคุณถ้ามี)
 
 📄 License
 This project is licensed under the MIT License. See the LICENSE file for details.

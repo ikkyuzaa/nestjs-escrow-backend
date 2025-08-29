@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException, forwardRef, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Transaction } from './entities/transaction.entity';
@@ -7,16 +7,19 @@ import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { ShipTransactionDto } from './dto/ship-transaction.dto';
 import { User } from '../user/entities/user.entity';
 import { PaymentsService } from '../payments/payments.service';
+import { DisputesService } from '../disputes/disputes.service';
+import { CreateDisputeDto } from '../disputes/dto/create-dispute.dto';
 
 @Injectable()
 export class TransactionService {
   constructor(
     @InjectRepository(Transaction)
     private readonly transactionRepository: Repository<Transaction>,
+    @Inject(forwardRef(() => PaymentsService))
     private readonly paymentsService: PaymentsService,
+    @Inject(forwardRef(() => DisputesService))
+    private readonly disputesService: DisputesService,
   ) {}
-
-  // ... (เมธอด create, ship, complete, etc. เหมือนเดิม) ...
 
   async create(createDto: CreateTransactionDto, seller: User): Promise<Transaction> {
     const transaction = this.transactionRepository.create({
@@ -51,13 +54,21 @@ export class TransactionService {
     transaction.status = TransactionStatus.COMPLETED;
     return this.transactionRepository.save(transaction);
   }
-  
-  async dispute(id: string, userId: string): Promise<Transaction> {
-    const transaction = await this.findOne(id);
+
+  async dispute(transactionId: string, user: User, createDisputeDto: CreateDisputeDto): Promise<Transaction> {
+    const transaction = await this.findOne(transactionId);
+    if (transaction.sellerId !== user.id /* && transaction.buyerId !== user.id */) {
+      throw new ForbiddenException('You are not part of this transaction.');
+    }
+    const allowedStatuses = [TransactionStatus.PAYMENT_RECEIVED, TransactionStatus.SHIPPING];
+    if (!allowedStatuses.includes(transaction.status)) {
+      throw new ForbiddenException(`Cannot open a dispute for a transaction with status '${transaction.status}'`);
+    }
+    await this.disputesService.create(transaction, user, createDisputeDto);
     transaction.status = TransactionStatus.DISPUTED;
     return this.transactionRepository.save(transaction);
   }
-
+  
   async findOne(id: string): Promise<Transaction> {
     const transaction = await this.transactionRepository.findOneBy({ id });
     if (!transaction) {
@@ -66,21 +77,30 @@ export class TransactionService {
     return transaction;
   }
 
-  // vvvvvvvv ADD THIS METHOD vvvvvvvv
-  /**
-   * Updates a transaction's status to PAYMENT_RECEIVED.
-   * This method is specifically called by the PaymentsService after a successful payment.
-   * @param transactionId The ID of the transaction to update.
-   * @returns The updated transaction.
-   */
   async updateStatusAfterPayment(transactionId: string): Promise<Transaction> {
     const transaction = await this.findOne(transactionId);
     if (transaction.status !== TransactionStatus.WAITING_FOR_PAYMENT) {
       console.warn(`Transaction ${transactionId} is not in WAITING_FOR_PAYMENT state. Current state: ${transaction.status}`);
-      return transaction; // Or throw an error, depending on desired logic
+      return transaction;
     }
     transaction.status = TransactionStatus.PAYMENT_RECEIVED;
-    // TODO: In the future, you would also add the buyer's ID to the transaction here.
+    return this.transactionRepository.save(transaction);
+  }
+
+  async resolveAsRefund(transactionId: string): Promise<Transaction> {
+    const transaction = await this.findOne(transactionId);
+    // You must add 'REFUNDED' to your TransactionStatus enum
+    transaction.status = TransactionStatus.REFUNDED;
+    // TODO: Implement actual refund logic via PaymentService in the future
+    console.log(`Transaction ${transactionId} has been resolved and will be REFUNDED.`);
+    return this.transactionRepository.save(transaction);
+  }
+
+  async resolveAsPayout(transactionId: string): Promise<Transaction> {
+    const transaction = await this.findOne(transactionId);
+    transaction.status = TransactionStatus.COMPLETED; // Mark as completed by admin
+    // TODO: Implement actual payout logic via PaymentService in the future
+    console.log(`Transaction ${transactionId} has been resolved and payment will be RELEASED.`);
     return this.transactionRepository.save(transaction);
   }
 }
