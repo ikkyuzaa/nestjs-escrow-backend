@@ -49,7 +49,7 @@ graph TD
         B["API Gateway (Auth, Rate Limit)"]
     end
 
-    subgraph "BACKEND SERVICES (NestJS Modular Monolith)"
+    subgraph "BACKEND SERVICES (NestJS)"
         C["Auth Module"]
         D["User Module"]
         E["Transaction Module"]
@@ -64,30 +64,27 @@ graph TD
         K["External APIs (Bank, KYC)"]
     end
 
-    %% Connections
+    %% Main Flow
     A --> B
-    B --> C & D & E & F & G & H
 
-    %% Inter-module communication
+    %% Gateway to Services
+    B --> C
+    B --> D
+    B --> E
+    B --> F
+    B --> G
+    B --> H
+
+    %% Inter-Module Communication
     E --> F & G
     F --> E
+    G --> E
     H --> G
 
-    %% Data access
+    %% Data Access
     C & D & E & F & G & H --> I
     C & D & E & F & G & H --> J
     F --> K
-
-## 🛠️ Technology Stack
-
-* **Framework:** NestJS (with Fastify Adapter)
-* **Language:** TypeScript
-* **Database:** PostgreSQL
-* **ORM:** TypeORM
-* **Authentication:** Passport.js (JWT Strategy)
-* **Password Hashing:** Argon2
-* **Validation:** class-validator
-
 ## 🚀 Getting Started
 
 ### Prerequisites
