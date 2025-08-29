@@ -39,52 +39,8 @@ This project implements a complete, end-to-end transaction lifecycle with a robu
 
 This project is built using a **Modular Monolith** architecture. Each core feature (Auth, Transactions, Payments, etc.) is encapsulated within its own dedicated NestJS module. This approach provides clear separation of concerns, enhances maintainability, and makes the system ready to be scaled into individual microservices in the future.
 
-```mermaid
-graph TD
-    subgraph "USER LAYER"
-        A["Web / Mobile App (Frontend)"]
-    end
+![System Architecture Diagram](./system-architecture.png)
 
-    subgraph "GATEWAY LAYER"
-        B["API Gateway (Auth, Rate Limit)"]
-    end
-
-    subgraph "BACKEND SERVICES (NestJS)"
-        C["Auth Module"]
-        D["User Module"]
-        E["Transaction Module"]
-        F["Payment Module"]
-        G["Dispute Module"]
-        H["Admin Module"]
-    end
-
-    subgraph "DATA & EXTERNAL LAYER"
-        I[("PostgreSQL DB")]
-        J[("Redis Cache")]
-        K["External APIs (Bank, KYC)"]
-    end
-
-    %% Main Flow
-    A --> B
-
-    %% Gateway to Services
-    B --> C
-    B --> D
-    B --> E
-    B --> F
-    B --> G
-    B --> H
-
-    %% Inter-Module Communication
-    E --> F & G
-    F --> E
-    G --> E
-    H --> G
-
-    %% Data Access
-    C & D & E & F & G & H --> I
-    C & D & E & F & G & H --> J
-    F --> K
 ## 🚀 Getting Started
 
 ### Prerequisites
