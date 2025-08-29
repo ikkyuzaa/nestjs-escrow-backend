@@ -11,6 +11,7 @@ import { PaymentsModule } from './payments/payments.module';
 import { Payment } from './payments/entities/payment.entity';
 import { DisputesModule } from './disputes/disputes.module';
 import { Dispute } from './disputes/entities/dispute.entity';
+import { AdminModule } from './admin/admin.module';
 
 @Module({
   imports: [
@@ -38,7 +39,7 @@ import { Dispute } from './disputes/entities/dispute.entity';
         username: configService.get<string>('DATABASE_USERNAME'),
         password: configService.get<string>('DATABASE_PASSWORD'),
         database: configService.get<string>('DATABASE_NAME'),
-        entities: [User, Transaction, Payment, Dispute], // <<< แก้ไขแล้ว
+        entities: [User, Transaction, Payment, Dispute], // Ensure Dispute is here
         synchronize: false,
         logging: false,
       }),
@@ -49,8 +50,9 @@ import { Dispute } from './disputes/entities/dispute.entity';
     TransactionModule,
     PaymentsModule,
     DisputesModule,
+    AdminModule, // AppModule รู้จัก AdminModule ก็เพียงพอแล้ว
   ],
-  controllers: [],
+  controllers: [], // AppModule ไม่ควรมี Controller ของตัวเองในเคสนี้
   providers: [],
 })
 export class AppModule {}

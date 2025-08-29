@@ -7,23 +7,20 @@ import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { ShipTransactionDto } from './dto/ship-transaction.dto';
 import { User } from '../user/entities/user.entity';
 import { PaymentsService } from '../payments/payments.service';
-import { DisputesService } from '../disputes/disputes.service'; // <<< 1. Import DisputesService
-import { CreateDisputeDto } from '../disputes/dto/create-dispute.dto'; // <<< Import DTO
+import { DisputesService } from '../disputes/disputes.service';
+import { CreateDisputeDto } from '../disputes/dto/create-dispute.dto';
 
 @Injectable()
 export class TransactionService {
   constructor(
     @InjectRepository(Transaction)
     private readonly transactionRepository: Repository<Transaction>,
-    // Use forwardRef for circular dependency with PaymentsService
     @Inject(forwardRef(() => PaymentsService))
     private readonly paymentsService: PaymentsService,
-    // Use forwardRef for circular dependency with DisputesService
-    @Inject(forwardRef(() => DisputesService)) // <<< 2. Inject DisputesService
+    @Inject(forwardRef(() => DisputesService))
     private readonly disputesService: DisputesService,
   ) {}
 
-  // ... (เมธอด create, ship, complete, etc. เหมือนเดิม) ...
   async create(createDto: CreateTransactionDto, seller: User): Promise<Transaction> {
     const transaction = this.transactionRepository.create({
       ...createDto,
@@ -58,30 +55,20 @@ export class TransactionService {
     return this.transactionRepository.save(transaction);
   }
 
-  // vvvvvvvv UPDATE THIS METHOD vvvvvvvv
   async dispute(transactionId: string, user: User, createDisputeDto: CreateDisputeDto): Promise<Transaction> {
     const transaction = await this.findOne(transactionId);
-
-    // 1. Authorization Check: ตรวจสอบว่าผู้แจ้งเป็นผู้ซื้อหรือผู้ขาย
-    // (ตอนนี้ buyerId ยังเป็น null เราจะเช็กแค่ sellerId ไปก่อน)
     if (transaction.sellerId !== user.id /* && transaction.buyerId !== user.id */) {
       throw new ForbiddenException('You are not part of this transaction.');
     }
-
-    // 2. State Machine Check: ตรวจสอบสถานะที่สามารถเปิดข้อพิพาทได้
     const allowedStatuses = [TransactionStatus.PAYMENT_RECEIVED, TransactionStatus.SHIPPING];
     if (!allowedStatuses.includes(transaction.status)) {
       throw new ForbiddenException(`Cannot open a dispute for a transaction with status '${transaction.status}'`);
     }
-
-    // 3. เรียก DisputesService เพื่อสร้าง Dispute record
     await this.disputesService.create(transaction, user, createDisputeDto);
-    
-    // 4. อัปเดตสถานะ Transaction เป็น DISPUTED
     transaction.status = TransactionStatus.DISPUTED;
     return this.transactionRepository.save(transaction);
   }
-
+  
   async findOne(id: string): Promise<Transaction> {
     const transaction = await this.transactionRepository.findOneBy({ id });
     if (!transaction) {
@@ -97,6 +84,23 @@ export class TransactionService {
       return transaction;
     }
     transaction.status = TransactionStatus.PAYMENT_RECEIVED;
+    return this.transactionRepository.save(transaction);
+  }
+
+  async resolveAsRefund(transactionId: string): Promise<Transaction> {
+    const transaction = await this.findOne(transactionId);
+    // You must add 'REFUNDED' to your TransactionStatus enum
+    transaction.status = TransactionStatus.REFUNDED;
+    // TODO: Implement actual refund logic via PaymentService in the future
+    console.log(`Transaction ${transactionId} has been resolved and will be REFUNDED.`);
+    return this.transactionRepository.save(transaction);
+  }
+
+  async resolveAsPayout(transactionId: string): Promise<Transaction> {
+    const transaction = await this.findOne(transactionId);
+    transaction.status = TransactionStatus.COMPLETED; // Mark as completed by admin
+    // TODO: Implement actual payout logic via PaymentService in the future
+    console.log(`Transaction ${transactionId} has been resolved and payment will be RELEASED.`);
     return this.transactionRepository.save(transaction);
   }
 }
