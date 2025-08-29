@@ -119,5 +119,14 @@ $ npm run test:e2e
 # test coverage
 $ npm run test:cov
 
+## ✍️ Author
+
+**Rachat Lekklaew (ikkyuzaa)**
+
+This project was solely designed, architected, and developed by me. It represents a deep dive into building secure, scalable, and production-ready backend systems using modern technologies.
+
+* **GitHub:** [https://github.com/ikkyuzaa](https://github.com/ikkyuzaa)
+* **LinkedIn:** (ใส่ลิงก์โปรไฟล์ LinkedIn ของคุณถ้ามี)
+
 📄 License
 This project is licensed under the MIT License. See the LICENSE file for details.
