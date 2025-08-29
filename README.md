@@ -39,7 +39,7 @@ This project implements a complete, end-to-end transaction lifecycle with a robu
 
 This project is built using a **Modular Monolith** architecture. Each core feature (Auth, Transactions, Payments, etc.) is encapsulated within its own dedicated NestJS module. This approach provides clear separation of concerns, enhances maintainability, and makes the system ready to be scaled into individual microservices in the future.
 
-![System Architecture Diagram](./system-architecture.png)
+![System Architecture Diagram](https://i.postimg.cc/qRw5yR95/system-architecture.png)
 
 ## 🚀 Getting Started
 
